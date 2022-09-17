@@ -1,15 +1,9 @@
 package com.twitchanalyzer.analyzer
 
-import com.twitchanalyzer.analyzer.api.Helix
-
-import scala.util.{Failure, Success}
 import org.apache.spark.sql.SparkSession
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import com.twitchanalyzer.analyzer.modules.{DataLoader, Transformations}
 import org.apache.spark.storage.StorageLevel
 
-import scala.io.Source
+import com.twitchanalyzer.analyzer.modules.{DataLoader, Transformations}
 
 object TwitchAnalyzer {
   def main(args: Array[String]): Unit = {

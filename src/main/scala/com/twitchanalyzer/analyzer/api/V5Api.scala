@@ -2,7 +2,6 @@ package com.twitchanalyzer.analyzer.api
 
 import com.twitchanalyzer.analyzer.config
 import com.twitchanalyzer.analyzer.models._
-import org.apache.spark.sql.{DataFrame, SparkSession}
 import spray.json.DefaultJsonProtocol._
 import spray.json.{RootJsonFormat, _}
 

@@ -2,7 +2,7 @@ package com.twitchanalyzer.analyzer.api
 import com.twitchanalyzer.analyzer.config
 import spray.json.DefaultJsonProtocol._
 import spray.json.{RootJsonFormat, _}
-import sttp.client3.{Identity, RequestT, _}
+import sttp.client3._
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 

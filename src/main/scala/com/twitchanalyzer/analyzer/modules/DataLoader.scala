@@ -7,7 +7,6 @@ import org.apache.spark.sql.{
   Dataset,
   Encoders,
   SparkSession,
-  functions
 }
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.functions.{col, explode}

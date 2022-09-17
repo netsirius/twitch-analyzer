@@ -1,11 +1,8 @@
 package com.twitchanalyzer.analyzer.modules
 
 import com.vader.sentiment.analyzer.SentimentAnalyzer
-import com.vader.sentiment.processor.TextProperties
-import com.vader.sentiment.util.SentimentModifyingTokens
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{col, collect_set, explode, first, udf}
-import org.apache.spark.storage.StorageLevel
+import org.apache.spark.sql.functions.{col, explode, first, udf}
 
 import java.{lang, util}
 //
@@ -46,18 +43,22 @@ object Transformations {
     val sentiment = udf((message: String) => {
       val sentimentAnalyzer = new SentimentAnalyzer(message)
       sentimentAnalyzer.analyze()
-      var sentiment: Map[String, String] = Map.empty
-      sentimentAnalyzer.getPolarity.forEach(
-        (k, v) => sentiment += (k -> v.toString)
-      )
+      var sentiment: Seq[(String, String)] = Seq()
+      sentimentAnalyzer.getPolarity.forEach((k, v) => {
+        sentiment = sentiment :+ (k, v.toString)
+      })
       sentiment
     })
 
     spark.udf
       .register("sentiment", sentiment)
 
-    val cols: Seq[Column] = chats.columns.map(cn => col(cn)).toSeq
+    val groupingCols: Seq[String] = chats.columns.toSeq
     chats
-      .withColumn("sentiment", sentiment(col("message")))
+      .withColumn("sentiment", explode(sentiment(col("message"))))
+      .groupBy(groupingCols.head, groupingCols: _*)
+      .pivot("sentiment._1")
+      .agg(first("sentiment._2"))
+      .repartition(col("streamer_id"), col("vod_id"))
   }
 }
