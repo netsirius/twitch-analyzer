@@ -5,7 +5,7 @@ import com.twitchanalyzer.analyzer.models._
 import spray.json.DefaultJsonProtocol._
 import spray.json.{RootJsonFormat, _}
 
-object V5Api extends TwitchClient {
+object V5Api extends Client {
 
   private val HEADERS: Map[String, String] = Map(
     "client-id" -> config.V5_CLIENT_ID,

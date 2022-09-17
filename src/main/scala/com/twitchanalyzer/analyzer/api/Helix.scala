@@ -11,9 +11,9 @@ import com.twitchanalyzer.analyzer.models.{
 import spray.json.DefaultJsonProtocol._
 import spray.json.{RootJsonFormat, _}
 
-object Helix extends TwitchClient {
+object Helix extends Client {
 
-  private val OAUTH_TOKEN: String = getOauthToken()
+  private val OAUTH_TOKEN: String = getOauthToken
   private val HEADERS: Map[String, String] = Map(
     "client-id" -> config.CLIENT_ID,
     "authorization" -> s"Bearer $OAUTH_TOKEN",

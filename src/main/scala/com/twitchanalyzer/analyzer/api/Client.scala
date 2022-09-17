@@ -6,7 +6,7 @@ import sttp.client3._
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
-abstract class TwitchClient {
+abstract class Client {
   def CONNECTION_TIMEOUT_DURATION: FiniteDuration = 1.minute
 
   private implicit val tokenformat: RootJsonFormat[OauthToken] = jsonFormat3(
@@ -36,7 +36,7 @@ abstract class TwitchClient {
       .body
   }
 
-  private[api] def getOauthToken(): String = {
+  private[api] def getOauthToken: String = {
     val url =
       s"${config.OAUTH_BASE_ENDPOINT}?client_id=${config.CLIENT_ID}&client_secret=${config.SECRET}&grant_type=client_credentials"
     val sttpBackend = HttpURLConnectionBackend(
