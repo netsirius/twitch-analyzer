@@ -7,7 +7,7 @@ import sttp.client3._
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 abstract class Client {
-  def CONNECTION_TIMEOUT_DURATION: FiniteDuration = 1.minute
+  def CONNECTION_TIMEOUT_DURATION: FiniteDuration = 2.minute
 
   private implicit val tokenformat: RootJsonFormat[OauthToken] = jsonFormat3(
     OauthToken

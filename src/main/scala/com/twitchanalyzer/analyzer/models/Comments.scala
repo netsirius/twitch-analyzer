@@ -28,4 +28,4 @@ case class Comments(_id: Option[String],
                     source: Option[String],
                     state: Option[String],
                     message: Option[Message])
-case class CommentsInfo(comments: List[Comments], _next: Option[Option[String]])
+case class CommentsInfo(comments: List[Comments], _next: Option[String])

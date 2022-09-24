@@ -14,9 +14,30 @@ object V5Api extends Client {
 
   def getChats(vod: String): Seq[Comments] = {
     val url: String = s"${config.V5_BASE_ENDPOINT}/videos/$vod/comments"
-    performRequest(url, HEADERS) match {
+    var comments = Seq.empty[Comments]
+    var (next, cursor) = performRequest(url, HEADERS) match {
       case Right(response: String) =>
-        response.parseJson.convertTo[CommentsInfo].comments
+        val resp = response.parseJson.convertTo[CommentsInfo]
+        comments = comments ++ resp.comments
+        hasNext(resp)
+    }
+    while (next) {
+      val (n, c) = performRequest(s"$url?cursor=$cursor", HEADERS) match {
+        case Right(response: String) =>
+          val resp = response.parseJson.convertTo[CommentsInfo]
+          comments = comments ++ resp.comments
+          hasNext(resp)
+      }
+      next = n
+      cursor = c
+    }
+    comments
+  }
+
+  private def hasNext(resp: CommentsInfo): (Boolean, String) = {
+    resp._next match {
+      case Some(v) => (true, v)
+      case None    => (false, "")
     }
   }
 

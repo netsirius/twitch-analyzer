@@ -9,12 +9,14 @@ package object config {
   // Twitch Config
   val TWITCH_CHATS_DIR: String = SETTINGS.getString("app.twitch.chatsDir")
   val TWITCH_USERS_FILE: String = SETTINGS.getString("app.twitch.usersFile")
-  val HELIX_BASE_ENDPOINT = SETTINGS.getString("twitch.api.helixUrl")
-  val V5_BASE_ENDPOINT = SETTINGS.getString("twitch.api.v5Url")
-  val OAUTH_BASE_ENDPOINT = SETTINGS.getString("twitch.api.oauthUrl")
-  val CLIENT_ID = SETTINGS.getString("twitch.client.id")
-  val V5_CLIENT_ID = SETTINGS.getString("twitch.client.v5id")
-  val SECRET = SETTINGS.getString("twitch.client.secret")
+  val DATA_OUTPUT_PATH: String = SETTINGS.getString("app.output.outputPath")
+  val DATA_OUTPUT_FORMAT: String = SETTINGS.getString("app.output.outputFormat")
+  val HELIX_BASE_ENDPOINT: String = SETTINGS.getString("twitch.api.helixUrl")
+  val V5_BASE_ENDPOINT: String = SETTINGS.getString("twitch.api.v5Url")
+  val OAUTH_BASE_ENDPOINT: String = SETTINGS.getString("twitch.api.oauthUrl")
+  val CLIENT_ID: String = SETTINGS.getString("twitch.client.id")
+  val V5_CLIENT_ID: String = SETTINGS.getString("twitch.client.v5id")
+  val SECRET: String = SETTINGS.getString("twitch.client.secret")
 
   // Spark config
   val SPARK_EXECUTORS_NUM: Int =
@@ -22,7 +24,6 @@ package object config {
   val SPARK_EXECUTORS_CORES: Int =
     SETTINGS.getInt("app.spark.executorCores")
   val SPARK_PARTITIONS: Int = SPARK_EXECUTORS_CORES * SPARK_EXECUTORS_NUM * 3
-  val SPARK_LOCAL_DIR: String = SETTINGS.getString("app.spark.localDir")
 
   val SPARK_CONF: SparkConf = {
     val conf = new SparkConf()
@@ -39,7 +40,6 @@ package object config {
       "spark.ui.retainedTasks" -> "1000",
       "spark.ui.retainedDeadExecutors" -> "10",
       "spark.sql.warehouse.dir" -> "file:/tmp/spark-warehouse",
-//      "spark.local.dir" -> s"$SPARK_LOCAL_DIR"
     )
     options.foreach {
       case (k, v) => conf.set(k, v)

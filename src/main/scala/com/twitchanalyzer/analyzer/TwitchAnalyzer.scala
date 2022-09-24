@@ -1,8 +1,7 @@
 package com.twitchanalyzer.analyzer
 
+import com.twitchanalyzer.analyzer
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.storage.StorageLevel
-
 import com.twitchanalyzer.analyzer.modules.{DataLoader, Transformations}
 
 object TwitchAnalyzer {
@@ -11,12 +10,16 @@ object TwitchAnalyzer {
     implicit val spark: SparkSession = getSparkSession
     spark.sparkContext.setLogLevel("WARN")
 
-    val chats = DataLoader.loadChats(Some(2))
+    val chats = DataLoader.loadChats(Some(3))
     val flattened = Transformations.getFlattenedMessages(chats)
     val chatsWithSentiment = Transformations.analyzeSentiment(flattened)
-    chatsWithSentiment.persist(StorageLevel.MEMORY_ONLY_SER)
-    chatsWithSentiment.unpersist()
-    chatsWithSentiment.show(10)
+    val metrics = Transformations.getUserMetrics(chatsWithSentiment)
+    metrics
+      .coalesce(analyzer.config.SPARK_PARTITIONS)
+      .write
+      .format(analyzer.config.DATA_OUTPUT_FORMAT)
+      .save(analyzer.config.DATA_OUTPUT_PATH)
+    flattened.unpersist()
     chats.unpersist()
   }
 

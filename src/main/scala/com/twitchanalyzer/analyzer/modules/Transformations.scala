@@ -1,11 +1,9 @@
 package com.twitchanalyzer.analyzer.modules
 
 import com.vader.sentiment.analyzer.SentimentAnalyzer
-import org.apache.spark.sql.{Column, DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{col, explode, first, udf}
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.functions._
 
-import java.{lang, util}
-//
 object Transformations {
   def getFlattenedMessages(
     chats: DataFrame
@@ -56,9 +54,32 @@ object Transformations {
     val groupingCols: Seq[String] = chats.columns.toSeq
     chats
       .withColumn("sentiment", explode(sentiment(col("message"))))
-      .groupBy(groupingCols.head, groupingCols: _*)
+      .groupBy(groupingCols.head, groupingCols.tail: _*)
       .pivot("sentiment._1")
-      .agg(first("sentiment._2"))
+      .agg(first("sentiment._2").cast("float"))
+      .repartition(col("streamer_id"), col("vod_id"))
+  }
+
+  def getUserMetrics(
+    chats: DataFrame
+  )(implicit spark: SparkSession): DataFrame = {
+    chats
+      .groupBy("streamer_id", "vod_id", "vod_title", "user_id", "user_name")
+      .agg(
+        sum("bits").as("total_bits_spend"),
+        first("subscriber").as("subscriber_level"),
+        first("bits-leader").as("bits_leader_position"),
+        first("sub-gift-leader").as("sub_gift_leader"),
+        first("sub-gifter").as("is_sub_gifter"),
+        mean("compound").as("mean_compound_sentiment"),
+        mean("negative").as("mean_negative_sentiment"),
+        mean("neutral").as("mean_neutral_sentiment"),
+        mean("positive").as("mean_positive_sentiment")
+      )
+      .na
+      .fill(0)
+      .na
+      .fill("0")
       .repartition(col("streamer_id"), col("vod_id"))
   }
 }

@@ -5,8 +5,9 @@ import com.twitchanalyzer.analyzer.config.{TWITCH_CHATS_DIR, TWITCH_USERS_FILE}
 import org.apache.spark.sql.{
   DataFrame,
   Dataset,
+  Encoder,
   Encoders,
-  SparkSession,
+  SparkSession
 }
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.sql.functions.{col, explode}
@@ -18,11 +19,11 @@ object DataLoader {
     implicit spark: SparkSession,
     tag: scala.reflect.runtime.universe.TypeTag[T]
   ): Dataset[T] = {
-    implicit val encoder = Encoders.product[T]
+    implicit val encoder: Encoder[T] = Encoders.product[T]
     spark.read.schema(encoder.schema).json(TWITCH_CHATS_DIR).as[T]
   }
 
-  private def getStreamersToAnalyze(): Seq[String] = {
+  private def getStreamersToAnalyze: Seq[String] = {
     val usersSource = Source.fromFile(TWITCH_USERS_FILE)
     val users: Seq[String] = usersSource.getLines().mkString.split(',').toSeq
     usersSource.close()
@@ -31,7 +32,7 @@ object DataLoader {
 
   def loadChats(limit: Option[Int])(implicit spark: SparkSession): DataFrame = {
     import spark.implicits._
-    val streamers = getStreamersToAnalyze()
+    val streamers = getStreamersToAnalyze
     val videos = Helix.getVideos(streamers, limit)
     val chats = spark
       .createDataset(videos)
@@ -50,6 +51,7 @@ object DataLoader {
       )
       .select("streamer_id", "streamer_name", "vod_id", "vod_title", "chats.*")
     flattenedChats.persist(StorageLevel.MEMORY_ONLY)
+    flattenedChats
   }
 
 }
