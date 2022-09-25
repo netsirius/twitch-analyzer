@@ -18,6 +18,7 @@ object TwitchAnalyzer {
       .coalesce(analyzer.config.SPARK_PARTITIONS)
       .write
       .format(analyzer.config.DATA_OUTPUT_FORMAT)
+      .option("header", "true")
       .save(analyzer.config.DATA_OUTPUT_PATH)
     flattened.unpersist()
     chats.unpersist()
