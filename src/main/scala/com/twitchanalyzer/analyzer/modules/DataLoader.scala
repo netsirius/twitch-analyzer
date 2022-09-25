@@ -1,7 +1,9 @@
 package com.twitchanalyzer.analyzer.modules
 
 import com.twitchanalyzer.analyzer.api.{Helix, V5Api}
+import com.twitchanalyzer.analyzer.chekpoint.Checkpoint
 import com.twitchanalyzer.analyzer.config.{TWITCH_CHATS_DIR, TWITCH_USERS_FILE}
+import com.twitchanalyzer.analyzer.models.VideoInfo
 import org.apache.spark.sql.{
   DataFrame,
   Dataset,
@@ -30,12 +32,32 @@ object DataLoader {
     Helix.getUsers(users)
   }
 
-  def loadChats(limit: Option[Int])(implicit spark: SparkSession): DataFrame = {
+  def loadChats(
+    limit: Option[Int] = None
+  )(implicit spark: SparkSession): DataFrame = {
     import spark.implicits._
     val streamers = getStreamersToAnalyze
-    val videos = Helix.getVideos(streamers, limit)
+    val videos: Seq[VideoInfo] = Helix.getVideos(streamers, limit)
+
+    // Only get not processed videos
+    val filteredVideos: Seq[VideoInfo] = videos
+      .groupBy(v => v.user_login.get)
+      .flatMap((group: (String, Seq[VideoInfo])) => {
+        group._2
+          .filter(_.id.get.toInt > Checkpoint.getLastVideo(group._1).toInt)
+      })
+      .toSeq
+
+    // Update checkpoint for each streamer
+    filteredVideos
+      .groupBy(v => v.user_login.get)
+      .foreach((group: (String, Seq[VideoInfo])) => {
+        val lastVideo: String = group._2.maxBy(_.id).id.get
+        Checkpoint.updateCheckpoint(group._1, lastVideo)
+      })
+
     val chats = spark
-      .createDataset(videos)
+      .createDataset(filteredVideos)
       .repartition()
       .map(vod => {
         val data = V5Api.getChats(vod.id.get)

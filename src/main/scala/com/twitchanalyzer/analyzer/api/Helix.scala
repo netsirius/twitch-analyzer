@@ -31,14 +31,15 @@ object Helix extends Client {
 
   def getVideos(users: Seq[String], limit: Option[Int]): Seq[VideoInfo] = {
     val params = users.map(user => s"user_id=$user").mkString("&")
-    val url = s"${config.HELIX_BASE_ENDPOINT}/videos?$params"
+    val url = limit match {
+      case Some(first) =>
+        s"${config.HELIX_BASE_ENDPOINT}/videos?$params&first=$first&sort=time"
+      case None =>
+        s"${config.HELIX_BASE_ENDPOINT}/videos?$params&sort=time"
+    }
     performRequest(url, HEADERS) match {
       case Right(response: String) =>
-        val videos = response.parseJson.convertTo[VideosInfo].data
-        limit match {
-          case Some(max) => videos.take(max)
-          case None      => videos
-        }
+        response.parseJson.convertTo[VideosInfo].data
     }
   }
 

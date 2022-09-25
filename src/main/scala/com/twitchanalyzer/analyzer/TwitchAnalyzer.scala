@@ -10,7 +10,7 @@ object TwitchAnalyzer {
     implicit val spark: SparkSession = getSparkSession
     spark.sparkContext.setLogLevel("WARN")
 
-    val chats = DataLoader.loadChats(Some(3))
+    val chats = DataLoader.loadChats(Some(10))
     val flattened = Transformations.getFlattenedMessages(chats)
     val chatsWithSentiment = Transformations.analyzeSentiment(flattened)
     val metrics = Transformations.getUserMetrics(chatsWithSentiment)

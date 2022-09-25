@@ -9,6 +9,8 @@ package object config {
   // Twitch Config
   val TWITCH_CHATS_DIR: String = SETTINGS.getString("app.twitch.chatsDir")
   val TWITCH_USERS_FILE: String = SETTINGS.getString("app.twitch.usersFile")
+  val CHECKPOINT_FILE_PATH: String =
+    SETTINGS.getString("app.twitch.checkpointFile")
   val DATA_OUTPUT_PATH: String = SETTINGS.getString("app.output.outputPath")
   val DATA_OUTPUT_FORMAT: String = SETTINGS.getString("app.output.outputFormat")
   val HELIX_BASE_ENDPOINT: String = SETTINGS.getString("twitch.api.helixUrl")

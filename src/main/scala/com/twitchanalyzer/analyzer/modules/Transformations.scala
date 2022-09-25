@@ -66,11 +66,11 @@ object Transformations {
     chats
       .groupBy("streamer_id", "vod_id", "vod_title", "user_id", "user_name")
       .agg(
-        sum("bits").as("total_bits_spend"),
-        first("subscriber").as("subscriber_level"),
-        first("bits-leader").as("bits_leader_position"),
-        first("sub-gift-leader").as("sub_gift_leader"),
-        first("sub-gifter").as("is_sub_gifter"),
+//        sum("bits").as("total_bits_spend"),
+//        first("subscriber").as("subscriber_level"),
+//        first("bits-leader").as("bits_leader_position"),
+//        first("sub-gift-leader").as("sub_gift_leader"),
+//        first("sub-gifter").as("is_sub_gifter"),
         mean("compound").as("mean_compound_sentiment"),
         mean("negative").as("mean_negative_sentiment"),
         mean("neutral").as("mean_neutral_sentiment"),
